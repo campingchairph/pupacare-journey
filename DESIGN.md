@@ -1,53 +1,57 @@
-# PupaCare Journey: design build spec
+# PupaCare Journey: design system v2, "Four dots, one paw"
 
-Mobile-only, no-build PWA. Warm, friendly and local. It should feel like a fellow fur-parent wrote it, not a clinic.
+Phone-only PWA that follows Apple's Human Interface Guidelines: large titles, grouped lists, segmented controls, bottom sheets,
+a frosted floating tab bar, safe areas, 44pt touch targets and text that follows the phone's text-size setting (rem plus `-apple-system-body`).
 
-## References (MotionSites)
-- **Stillmind**: calm wellness app. Soft italic serif headline, one idea per first screen, quiet pill buttons.
-- **Bloom AI**: natural brand. Serif italic accent words inside a rounded sans system; pill chips.
-- **Craft "paper on photography"**: warm cream page, with the owner's own dog photo as the hero media.
+## Colour
+| Role | Fill | Text-safe shade | Tint |
+|---|---|---|---|
+| Red-orange: Today, main actions | `#EE5127` | `#C93A12` | `#FDE5DD` |
+| Orchid: Log | `#B272A3` | `#874877` | `#F3E6F0` |
+| Sunflower: Plan | `#FFC357` | `#9A6500` | `#FFF0D1` |
+| Sky: Check, progress | `#50C1D6` | `#137E92` | `#DDF3F7` |
+| Page | `#FFFBF2` (cream white) | | |
+| Cards | `#FFFFFF` | | |
+| Ink | `#1E1B2E`, `#48445A`, `#6B6678` | | |
+| Safety only | `#B42318` on `#FDECEA` | | |
 
-## Signature
-**Pupa's trail.** The dog's own photo sits in an inset, rounded frame, with a dotted paw-print trail under it showing
-Wk 0 → 2 → 6 → 12. The current week glows, and every 14-day check-in drops a paw on the trail.
+Rules:
+- Text on a bright fill is always **ink**, never white (white on these fills is under 4.5:1).
+- Sun and sky are never used as text or thin lines on cream; use the darker text-safe shade instead.
+- Each tab sets `--accent`, `--accent-ink` and `--accent-tint` through `#app[data-section]`.
 
-## Tokens
-| Token | Value | Use |
-|---|---|---|
-| `--bg` | `#FBF5EC` | page (first CSS rule on html, body) |
-| `--card` | `#FFFFFF` | cards |
-| `--cream-2` | `#F3E8D8` | chips, inset frames, inputs |
-| `--ink` | `#2B2118` | text |
-| `--ink-2` | `#5C4A3B` | secondary text |
-| `--ink-3` | `#8E7B69` | labels, hints |
-| `--line` | `rgba(60,40,20,.10)` | borders |
-| `--accent` | `#D9773A` (kamote orange) | primary CTA fill, active tab, trail glow |
-| `--accent-soft` | `rgba(217,119,58,.14)` | selected chips, bars |
-| `--good` | `#6E9461` | improving status only |
-| `--alert` | `#B9382A` | red flags + safety only |
+## Type
+- **Outfit** 600/700 for titles; the iPhone system font for everything else.
+- Sizes are in rem: Large Title 34, Title 24, Title 2 20, Headline/Body 17, Callout 16, Subhead 15, Footnote 13, Caption 12.
 
-Fonts: **Fraunces** (headings, 500, italic accent words in `--ink-2`) + **Nunito** (body, 400/600/700/800).
-Sizes: H1 `clamp(34px,10vw,44px)`/1.02/−0.03em; H2 22px/1.15; body 15.5px/1.55; labels 11.5px uppercase +0.14em.
-Radii: cards 24px, inset photo frame 28px, buttons and chips are pills. Shadow: `0 4px 16px rgba(60,40,20,.08)`.
+## Spacing and shape
+- 4pt grid, 16pt side margins (14 below 360px wide), 16pt between blocks.
+- Corner radii: cards 20, list rows 12, sheet 28, buttons and chips as pills.
+- Only three container kinds: **card**, **grouped list** and **banner** (info, accent, warning, safety).
 
-## Layout
-- Fixed full viewport (`100dvh`), max-width 480px centred, 20px gutters, safe-area padding.
-- Bottom pill tab bar (5): Today · Check · Plan · Log · Report. Active tab is filled with `--accent` and white ink.
-- Modals are bottom sheets, radius 28px top, easing `cubic-bezier(.32,.72,0,1)` 420ms.
+## Controls
+- Buttons: primary, accent, tinted, soft, plain and danger.
+- Segmented control for Yes / No / Not sure.
+- Chips show a check mark when selected.
+- Large "choice" rows for single picks.
+- iOS-style switch; gradient itch slider.
+
+## Backgrounds
+Geometric scenery is drawn in code (circles, half-circles and pill shapes in the four colours), one scene per section.
+- Shapes stay in the header band and the right third, so they never sit behind text.
+- Scenes fade into cream and scroll at 0.35× for a gentle parallax.
+- Check: the stepping stones fill in as you move through the steps.
+- Motion is slow drift and "breathing" only, and it is turned off when the phone's reduce-motion setting is on.
 
 ## Motion
-- Welcome headline: per-word rise (opacity 0→1, y 24px→0, 80ms stagger, 800ms, `cubic-bezier(.22,1,.36,1)`).
-- Cards fade up on tab switch (y 12px, 400ms, 60ms stagger). Hover/press: `:active` scale .97.
-- `prefers-reduced-motion`: no motion; everything visible at rest.
+- Cards fade up in sequence.
+- Progress bar fills; score bars grow; chart line draws in.
+- The "now" stop on the trail pulses.
+- Sheets slide up from the bottom.
+- Completion moments burst into dots in the four colours (onboarding done, check result, check-in saved, log saved).
+- Check-in suggestions appear one after another.
 
-## Copy
-- H1: "Gentle steps for / itchy *paws*."
-- Sub: "A journal and plan-builder by fellow fur-parents in the Philippines. We're not vets. This helps you bring better notes and better questions to yours."
-- CTA: "Start the journey" (welcome), then "Start Pupa's check" (Today).
+## Signature
+The brand mark is a paw made of four coloured toe dots plus an ink pad (`icon-paw.svg`). The journey trail (Wk 0 → 2 → 6 → 12) uses the same four colours, in order.
 
-## Safety, as UI rules
-- Red flags are always the first screen of a check and a check-in. Any yes shows a full-screen "Go to a vet now" with no plan.
-- No dose numbers anywhere. Every formula card says "Dose: follow the product label and confirm with your vet."
-- Long Dan, ImmunoBomb: a "Vet supervision" badge in `--alert`.
-- The taper screen always shows "Never stop prednisone suddenly."
-- The disclaimer must be accepted on first launch and stays in Settings.
+Colour reference: supplied by the owner (four-colour palette). Only the colours are used, not the reference's letterforms or identity.
