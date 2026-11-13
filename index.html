@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#FBF5EC">
+<meta name="description" content="A journal and plan-builder for itchy, allergic dogs. Made by fur-parents in the Philippines. Not a vet.">
+<title>PupaCare Journey</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;1,9..144,500&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="pupacare.css">
+</head>
+<body>
+
+<!-- Welcome / first launch -->
+<section id="welcome" class="welcome" hidden>
+  <div class="welcome-inner">
+    <div class="brand"><span class="brand-mark" aria-hidden="true"></span>PupaCare <em>Journey</em></div>
+    <label class="hero-frame" id="welcome-photo" aria-label="Add your dog's photo">
+      <input type="file" accept="image/*" id="welcome-photo-input" hidden>
+      <div class="hero-photo" id="welcome-photo-img"></div>
+      <span class="hero-photo-hint" id="welcome-photo-hint"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z M12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>Add your dog's photo</span>
+    </label>
+    <h1 class="welcome-h1" id="welcome-h1">Gentle steps for <em>itchy paws.</em></h1>
+    <p class="welcome-sub">A journal and plan-builder by fellow fur-parents in the Philippines. We're not vets. This helps you bring better notes and better questions to yours.</p>
+    <div class="field welcome-name">
+      <label for="welcome-name">Your dog's name</label>
+      <input id="welcome-name" type="text" placeholder="Pupa" autocomplete="off" maxlength="30">
+    </div>
+    <div class="field">
+      <span class="field-label">Girl or boy?</span>
+      <div class="chips" id="welcome-sex">
+        <button type="button" class="chip" data-sex="female">Girl</button>
+        <button type="button" class="chip" data-sex="male">Boy</button>
+      </div>
+    </div>
+    <label class="consent">
+      <input type="checkbox" id="welcome-consent">
+      <span>I understand this app is <strong>not a vet</strong>. It follows one integrative vet's approach (Dr. Steve Marsden's webinars), which is not mainstream veterinary consensus. I'll talk to my vet before changing food, herbs or medicine.</span>
+    </label>
+    <button class="btn btn-primary btn-wide" id="welcome-start" disabled>Start the journey <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  </div>
+</section>
+
+<!-- App shell -->
+<div id="app" class="app" hidden>
+  <header class="app-head">
+    <div class="brand brand-sm"><span class="brand-mark" aria-hidden="true"></span>PupaCare <em>Journey</em></div>
+    <button class="icon-btn" onclick="openSettings()" aria-label="Settings">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+  </header>
+
+  <main class="app-main" id="main">
+    <section class="panel" id="panel-today"></section>
+    <section class="panel" id="panel-check" hidden></section>
+    <section class="panel" id="panel-plan" hidden></section>
+    <section class="panel" id="panel-log" hidden></section>
+    <section class="panel" id="panel-report" hidden></section>
+  </main>
+
+  <nav class="tabbar" aria-label="Main">
+    <button class="tab active" data-tab="today" onclick="goTab('today')">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span>Today</span></button>
+    <button class="tab" data-tab="check" onclick="goTab('check')">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4h6v3H9zM6 6h2v2h8V6h2v15H6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 14l2 2 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Check</span></button>
+    <button class="tab" data-tab="plan" onclick="goTab('plan')">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19c3-1 4-4 7-4s4 3 7 2M5 5h14M5 10h9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>Plan</span></button>
+    <button class="tab" data-tab="log" onclick="goTab('log')">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5M4 19h16M7 15l4-4 3 3 5-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Log</span></button>
+    <button class="tab" data-tab="report" onclick="goTab('report')">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7zM14 3v5h5M10 13h6M10 17h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg><span>Vet report</span></button>
+  </nav>
+</div>
+
+<!-- Bottom sheet -->
+<div class="sheet-backdrop" id="sheet-backdrop" onclick="closeSheet()" hidden></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" hidden>
+  <div class="sheet-grip" aria-hidden="true"></div>
+  <div class="sheet-body" id="sheet-body"></div>
+</div>
+
+<!-- Printable vet report (filled at print time) -->
+<div id="print-root" class="print-root" aria-hidden="true"></div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="rules.js"></script>
+<script src="pupacare-app.js"></script>
+</body>
+</html>

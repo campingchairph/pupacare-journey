@@ -1,0 +1,14 @@
+{
+  "name": "PupaCare Journey",
+  "short_name": "PupaCare",
+  "description": "A journal and plan-builder for itchy, allergic dogs. Not a vet.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FBF5EC",
+  "theme_color": "#FBF5EC",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
