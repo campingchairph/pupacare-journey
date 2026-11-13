@@ -28,11 +28,24 @@
 
   function loadState() {
     try {
-      const raw = localStorage.getItem(KEY);
+      const raw = migrateNames(localStorage.getItem(KEY));
       if (raw) PC = Object.assign(defaultState(), JSON.parse(raw));
       PC.dog = Object.assign(defaultState().dog, PC.dog);
       PC.diet = Object.assign(defaultState().diet, PC.diet);
     } catch (e) { console.warn('load failed', e); }
+  }
+  // Rules v0.2.0 corrected transcript errors in product names. Rewrite saved data
+  // (formula keys, sign ids and plan text) so old plans show the real names.
+  function migrateNames(raw) {
+    if (!raw) return raw;
+    const pairs = [['four_marbles', 'four_marvels'], ['cesarex', 'cessorex'], ['immunobomb', 'immunobalm'],
+      ['Four Marbles', 'Four Marvels'], ['Cesarex', 'Cessorex'], ['ImmunoBomb', 'ImmunoBalm'],
+      ['Lift the Chi', 'Lift the Qi'], ['Harmonize the Chi', 'Harmonize the Qi'], ['Four Materials', 'Four Substances'],
+      ['Lactobacillus, Bifidobacterium or Bacteroides', 'Lactobacillus or Bifidobacterium']];
+    let out = raw;
+    pairs.forEach(([a, b]) => { out = out.split(a).join(b); });
+    if (out !== raw) { try { localStorage.setItem(KEY, out); } catch (e) { /* keep in memory only */ } }
+    return out;
   }
   function saveState() {
     try { localStorage.setItem(KEY, JSON.stringify(PC)); }
@@ -168,7 +181,7 @@
     probiotics_not_helping: { step: 'diet', q: 'Have probiotics been tried without much help?', s: 'Probiotics not helping' },
     // meds
     omega3_helped_fast: { step: 'meds', q: 'Did fish oil / omega-3 help quickly (within a few weeks)?', s: 'Omega-3 helped fast' },
-    itchier_on_cesarex: { step: 'meds', q: 'Has {s} been on Cesarex (or a similar herb) and got itchier?', s: 'Itchier on Cesarex' },
+    itchier_on_cessorex: { step: 'meds', q: 'Has {s} been on Cessorex (or a similar herb) and got itchier?', s: 'Itchier on Cessorex' },
     antibiotic_responsive_recurrence: { step: 'meds', q: 'Do skin infections clear on antibiotics, then keep coming back?', s: 'Infections recur after antibiotics' },
     // flare timing
     worse_hot_humid_onset: { step: 'timing', q: 'Did it start, or get worse, in hot and humid weather?', s: 'Worse in hot, humid weather' },
@@ -200,12 +213,12 @@
     weak_pulse: { step: 'checks', q: 'Weak pulse?', tag: 'Vet only', hint: 'Skip unless your vet checked it', s: 'Weak pulse (vet)' },
     // history
     autoimmune_diagnosis: { step: 'history', q: 'Has a vet diagnosed an autoimmune disease (e.g. pemphigus, lupus)?', s: 'Autoimmune diagnosis' },
-    calcinosis_cutis: { step: 'history', q: 'Has a vet found calcinosis cutis (hard, chalky skin bumps)?', tag: 'Vet dx', s: 'Calcinosis cutis' },
+    calcinosis_cutis: { step: 'history', q: 'Has a vet found calcinosis cutis (hard, chalky skin bumps)?', tag: 'Vet dx', hint: R.patterns.severe.signs.find((x) => x.id === 'calcinosis_cutis').vet_warning, s: 'Calcinosis cutis' },
     cruciate_or_hip_history: { step: 'history', q: 'Cruciate (knee ligament) injury or hip dysplasia?', s: 'Cruciate / hip history' },
     kcs_dry_eye: { step: 'history', q: 'Dry eye (KCS) or thick sticky eye discharge?', s: 'Dry eye (KCS)' },
     classic_rectal_prolapse_history: { step: 'history', q: 'Ever had a rectal prolapse?', s: 'Rectal prolapse history' },
     high_eosinophils: { step: 'history', q: 'Bloodwork showed high eosinophils?', tag: 'Bloodwork', s: 'High eosinophils' },
-    hypercalcemia_idiopathic: { step: 'history', q: 'Bloodwork showed high calcium with no clear cause?', tag: 'Bloodwork', s: 'High calcium' }
+    hypercalcemia_idiopathic: { step: 'history', q: 'Bloodwork showed high calcium with no clear cause?', tag: 'Bloodwork', hint: R.patterns.adaptive.signs.find((x) => x.id === 'hypercalcemia_idiopathic').vet_warning, s: 'High calcium' }
   };
   const DERIVED_LABEL = {
     eats_processed: 'Eats processed food', high_starch_homemade: 'Starchy homemade food', overweight: 'Overweight',
@@ -302,29 +315,29 @@
       P.gate = 'G?'; P.why = 'Fill in the Diet step so we know which path fits.'; return P;
     }
     if (isProcessed() && d.refusesChange === 'y') {
-      P.gate = 'G1a'; P.formulas = ['four_marbles', 'cesarex']; P.recheck = [2, 4, 6];
+      P.gate = 'G1a'; P.formulas = ['four_marvels', 'cessorex']; P.recheck = [2, 4, 6];
       P.why = name + ' eats processed food and switching isn\'t possible right now. Herbs alone work more slowly, so we\'ll keep asking about food at every check-in.';
       P.phases = [
-        { t: 'Start gently', w: 'Week 0–2', items: [it('herb', 'Ask your vet about <b>Four Marbles</b> (Si Miao San) to cool the damp heat.'), it('herb', 'Ask your vet about <b>Cesarex</b> for the gut side.'), it('food', 'Cut starchy extras and treats (rice, bread, potato, corn, pasta) where you can.'), it('watch', 'Log the itch daily so the 2-week check-in has real numbers.')] },
-        { t: 'Watch & adjust', w: 'Week 2–6', items: [it('watch', 'Check-ins at weeks 2, 4 and 6.'), it('food', 'Think about fresh food again. It\'s the biggest lever in this approach.'), it('herb', 'If {s} gets itchier on Cesarex, the check-in will suggest the next step for your vet.')] },
+        { t: 'Start gently', w: 'Week 0–2', items: [it('herb', 'Ask your vet about <b>Four Marvels</b> (Si Miao San) to cool the damp heat.'), it('herb', 'Ask your vet about <b>Cessorex</b> for the gut side.'), it('food', 'Cut starchy extras and treats (rice, bread, potato, corn, pasta) where you can.'), it('watch', 'Log the itch daily so the 2-week check-in has real numbers.')] },
+        { t: 'Watch & adjust', w: 'Week 2–6', items: [it('watch', 'Check-ins at weeks 2, 4 and 6.'), it('food', 'Think about fresh food again. It\'s the biggest lever in this approach.'), it('herb', 'If {s} gets itchier on Cessorex, the check-in will suggest the next step for your vet.')] },
         { t: 'Settle in', w: 'Week 6+', items: [it('taper', 'Once {s}\'s clearly better, talk to your vet about a slow, stair-step taper.'), it('herb', 'Then find the lowest herb amount that holds.')] }
       ];
       P.taper = true; return P;
     }
     if (isProcessed()) {
       P.gate = 'G1b'; P.diet = true; P.recheck = [2, 4, 6]; P.longDan = irritable;
-      P.formulas = irritable ? ['long_dan', 'four_marbles'] : ['four_marbles'];
+      P.formulas = irritable ? ['long_dan', 'four_marvels'] : ['four_marvels'];
       P.why = name + ' eats processed food. In this approach food is the foundation: move to fresh, meat-based food, with a cooling formula alongside.';
       P.phases = [
         { t: 'Food foundation', w: 'Week 0–2', items: [
           it('food', 'Switch to <b>fresh, meat-based food</b> (raw or cooked) over about 7–10 days, mixing a bit more each day.'),
           it('food', 'Make <b>1/6 to 1/3</b> of the bowl plants: kamote, kalabasa, carrot, pechay, malunggay. <b>Never onion.</b> Only a little garlic.'),
-          it('food', 'Add a probiotic with <b>Lactobacillus, Bifidobacterium or Bacteroides</b>.'),
-          irritable ? it('vet', 'Because {s} gets irritable, ask your vet about <b>Long Dan Xie Gan Tang</b>. It\'s strong and vet-supervised only.') : it('herb', 'Ask your vet about <b>Four Marbles</b> (Si Miao San).')
+          it('food', 'Add a probiotic with <b>Lactobacillus or Bifidobacterium</b>.'),
+          irritable ? it('vet', 'Because {s} gets irritable, ask your vet about <b>Long Dan Xie Gan Tang</b>. It\'s strong and vet-supervised only.') : it('herb', 'Ask your vet about <b>Four Marvels</b> (Si Miao San).')
         ] },
         { t: 'Watch & adjust', w: 'Week 2–6', items: [
           it('watch', 'Check-ins at weeks 2, 4 and 6.'),
-          irritable ? it('herb', 'Once things calm down, your vet can move {o} from Long Dan to <b>Four Marbles</b> to finish.') : it('herb', 'Keep Four Marbles going while the new food settles in.'),
+          irritable ? it('herb', 'Once things calm down, your vet can move {o} from Long Dan to <b>Four Marvels</b> to finish.') : it('herb', 'Keep Four Marvels going while the new food settles in.'),
           it('watch', 'Watch the stool while the food changes; soft stool for a few days is common.')
         ] },
         { t: 'Settle in', w: 'Week 6+', items: [it('taper', 'If {s}\'s radically better, run a new check: the plan will move to <b>maintain + taper</b>.'), it('herb', 'Find the lowest herb amount that holds, with your vet.')] }
@@ -332,10 +345,10 @@
       P.taper = true; return P;
     }
     if (isReal() && Number(d.realWeeks) >= 4 && d.radicallyBetter === 'y') {
-      P.gate = 'G2a'; P.formulas = ['four_marbles']; P.taper = true; P.recheck = [2, 4];
+      P.gate = 'G2a'; P.formulas = ['four_marvels']; P.taper = true; P.recheck = [2, 4];
       P.why = name + ' has been on real food for 4+ weeks and is radically better. Keep things steady and start a slow, vet-guided taper.';
       P.phases = [
-        { t: 'Hold steady', w: 'Week 0–2', items: [it('food', 'Keep the fresh food, plants and probiotics exactly as they are.'), it('herb', 'Keep <b>Four Marbles</b> going as maintenance (with your vet).')] },
+        { t: 'Hold steady', w: 'Week 0–2', items: [it('food', 'Keep the fresh food, plants and probiotics exactly as they are.'), it('herb', 'Keep <b>Four Marvels</b> going as maintenance (with your vet).')] },
         { t: 'Stair-step taper', w: 'Week 2–6', items: [it('taper', 'With your vet, lower the itch medicine step by step (see the taper card below).'), it('watch', 'A mild itch is your signal to hold that dose for 1–2 weeks.')] },
         { t: 'Lowest dose', w: 'Week 6+', items: [it('herb', 'Once off meds, find the lowest herb amount that holds.'), it('watch', 'Restart herbs ~1 month before {p} usual flare season.')] }
       ];
@@ -345,7 +358,7 @@
       P.gate = 'G2b'; P.plants = true; P.recheck = [2, 4];
       P.why = name + ' eats raw but with almost no plants. Add plants and the right probiotics first, then check again in 2–4 weeks.';
       P.phases = [
-        { t: 'Add plants & probiotics', w: 'Week 0–2', items: [it('food', 'Build up to <b>1/6–1/3 plants</b>: kamote, kalabasa, carrot, pechay, malunggay, berries. <b>Never onion.</b>'), it('food', 'Use a probiotic with <b>Lactobacillus, Bifidobacterium or Bacteroides</b>.')] },
+        { t: 'Add plants & probiotics', w: 'Week 0–2', items: [it('food', 'Build up to <b>1/6–1/3 plants</b>: kamote, kalabasa, carrot, pechay, malunggay, berries. <b>Never onion.</b>'), it('food', 'Use a probiotic with <b>Lactobacillus or Bifidobacterium</b>.')] },
         { t: 'Re-check', w: 'Week 2–4', items: [it('watch', 'Check-ins at weeks 2 and 4.'), it('watch', 'Not resolved by week 4? Run a new check and the plan will pick a formula by pattern.')] }
       ];
       P.taper = false; return P;
@@ -356,12 +369,12 @@
       P.gate = 'G2c'; P.pattern = pat; P.formulas = gate.plan_by_pattern[pat].filter((f) => R.formulas[f]);
       const patName = pat === 'blood_def_only' ? R.patterns.blood_def.label : R.patterns[pat].label;
       P.why = name + ' is on real food but not resolved yet, so the formula is chosen by {p} strongest pattern: <b>' + esc(patName) + '</b>.';
-      if (scores.adaptive >= R.scoring.moderate && scores.blood_def >= R.scoring.moderate) P.why += ' Adaptive and dry signs overlap; Cesarex covers both.';
+      if (scores.adaptive >= R.scoring.moderate && scores.blood_def >= R.scoring.moderate) P.why += ' Adaptive and dry signs overlap; Cessorex covers both.';
       const first = {
-        severe: [it('vet', 'Ask your vet about <b>ImmunoBomb</b> (≈ Cool the Blood) to calm things first. Vet supervision.'), it('herb', 'Once calmer, your vet may add <b>Cesarex</b>.')],
-        adaptive: [it('herb', 'Ask your vet about <b>Cesarex</b> for the gut lining and microbiome.')],
-        low_grade: [it('herb', 'Ask your vet about <b>Galvanex</b> (Bu Zhong Yi Qi Tang) to lift {p} energy.'), it('herb', 'Plus <b>Cesarex</b>.')],
-        blood_def_only: [it('herb', 'Ask your vet about <b>Four Materials</b> (Si Wu Tang) for the dry type.')]
+        severe: [it('vet', 'Ask your vet about <b>ImmunoBalm</b> (based on Qing Ying Tang, "Cool the Blood") to calm things first. Vet supervision.'), it('herb', 'Once calmer, your vet may add <b>Cessorex</b>.')],
+        adaptive: [it('herb', 'Ask your vet about <b>Cessorex</b> for the gut lining and microbiome.')],
+        low_grade: [it('herb', 'Ask your vet about <b>Galvanex</b> (Bu Zhong Yi Qi Tang) to lift {p} energy.'), it('herb', 'Plus <b>Cessorex</b>.')],
+        blood_def_only: [it('herb', 'Ask your vet about <b>Four Substances</b> (Si Wu Tang) for the dry type.')]
       }[pat];
       P.phases = [
         { t: 'Start the formula', w: 'Week 0–2', items: first.concat([it('food', 'Keep the fresh food, with 1/6–1/3 plants and a good probiotic.')]) },
@@ -400,12 +413,12 @@
     const a = activeAssessment(); if (!a) return [];
     const out = [];
     const severe = a.scores.severe >= R.scoring.high;
-    const hasCes = a.plan.formulas.includes('cesarex');
+    const hasCes = a.plan.formulas.includes('cessorex');
     const improving = c.response === 'much_better' || c.response === 'bit_better';
     const weeks = weeksOnPlan();
     if (c.response === 'itchier') {
-      if (hasCes && isReal()) out.push({ ic: 'vet', t: 'Itchier on Cesarex while on real food: ask your vet about <b>adding ImmunoBomb</b> and <b>reducing Cesarex</b>.' });
-      else if (hasCes) out.push({ ic: 'vet', t: 'Itchier on Cesarex while on processed food: ask your vet about <b>adding Four Marbles</b> and <b>reducing Cesarex</b>.' });
+      if (hasCes && isReal()) out.push({ ic: 'vet', t: 'Itchier on Cessorex while on real food: ask your vet about <b>adding ImmunoBalm</b> and <b>reducing Cessorex</b>.' });
+      else if (hasCes) out.push({ ic: 'vet', t: 'Itchier on Cessorex while on processed food: ask your vet about <b>adding Four Marvels</b> and <b>reducing Cessorex</b>.' });
       else out.push({ ic: 'vet', t: 'Itchier since a new herb: pause and tell your vet what changed and when.' });
     }
     if (c.response === 'bit_better' && c.tolerating === 'y') out.push({ ic: 'vet', t: 'Partial response and {s}\'s handling it well: ask your vet whether to <b>increase the herb dose</b>.' });
@@ -708,7 +721,7 @@
     if (d.probiotic === 'y') {
       h += input('diet.probioticBrand', 'Which one?', 'text', 'Brand') + '<div class="field"><span class="field-label">Species on the label</span>' + chipsMulti('diet.species', SPECIES.map((s) => [s, s]), d.species) + '</div>';
       if (d.species.length && !d.species.some((s) => R.diet.foundation.probiotic_species_required_any.includes(s)) && !d.species.includes('Not sure'))
-        h += '<div class="banner banner-info">' + IC.info + '<span>This approach looks for <b>Lactobacillus, Bifidobacterium or Bacteroides</b>. Enterococcus faecium is in the "wrong niche".</span></div>';
+        h += '<div class="banner banner-info">' + IC.info + '<span>This approach looks for <b>Lactobacillus or Bifidobacterium</b>. Dr. Marsden considers Enterococcus faecium the "wrong niche" (his view, not mainstream guidance).</span></div>';
     }
     h += '</div>' + qCard('A few more', stepQuestions('diet'));
     return h;
@@ -873,18 +886,18 @@
       '<li><b>Base:</b> ' + esc(f.base) + '.</li>' +
       (enoughPlants ? '<li>{P} plant share already looks good. No need to add more.</li>' : '<li><b>Plants:</b> about 1/6 to 1/3 of the bowl. Try ' + esc(f.plant_fraction.examples.join(', ')) + '.</li>') +
       '<li><b>Never:</b> ' + esc(f.plant_fraction.never.join(', ')) + '. <b>Only a little:</b> ' + esc(f.plant_fraction.minimal.join(', ')) + '.</li>' +
-      '<li><b>Probiotic:</b> look for ' + esc(f.probiotic_species_required_any.join(', ')) + (PC.diet.probiotic === 'y' ? (goodProb ? '. The current one fits.' : '. Check {p} current one\'s label.') : '.') + '</li>' +
-      '<li><b>Skip:</b> ' + esc(f.probiotic_wrong_niche.join(', ')) + ' (the "wrong niche" for this).</li>' +
+      '<li><b>Probiotic:</b> look for Lactobacillus or Bifidobacterium' + (PC.diet.probiotic === 'y' ? (goodProb ? '. The current one fits.' : '. Check {p} current one\'s label.') : '.') + ' <span class="muted">(The webinar notes also named Bacteroides, but it is rarely sold as a pet probiotic and we couldn\'t verify it.)</span></li>' +
+      '<li><b>Dr. Marsden\'s view:</b> ' + esc(f.probiotic_wrong_niche.join(', ')) + ' is the "wrong niche" for this. That is his opinion, not mainstream guidance; it is a common, generally safe pet probiotic.</li>' +
       (PC.diet.starch.length ? '<li><b>Cut back:</b> ' + esc(PC.diet.starch.join(', ')) + '.</li>' : '') + '</ul>');
   }
   function formulaCard(key) {
     const f = R.formulas[key]; if (!f) return '';
-    const vet = key === 'long_dan' || key === 'immunobomb';
-    const nice = { four_marbles: 'Four Marbles', long_dan: 'Long Dan', four_materials: 'Four Materials', minor_bupleurum: 'Minor Bupleurum', cesarex: 'Cesarex', immunobomb: 'ImmunoBomb', galvanex: 'Galvanex' }[key];
+    const vet = key === 'long_dan' || key === 'immunobalm';
+    const nice = f.name || key;
     const body = (f.brands ? '<p class="small"><b>Brands:</b> ' + esc(f.brands.join(' · ')) + '</p>' : '') +
       '<p class="small" style="color:var(--ink-2)"><b>For:</b> ' + esc(PATTERN_SHORT[f.for] ? PATTERN_SHORT[f.for] : f.for) + '</p>' +
       (f.caution ? '<div class="banner banner-warn">' + IC.warn + '<span>' + esc(f.caution) + '</span></div>' : '') +
-      (key === 'cesarex' ? '<p class="small muted">Minor Bupleurum versions must contain ginseng (Ren Shen), not codonopsis, and are usually paired with Four Materials.</p>' : '') +
+      (key === 'cessorex' ? '<p class="small muted">The label lists Panax ginseng (Ren Shen) with the Minor Bupleurum herbs, plus the four Si Wu Tang herbs. Minor Bupleurum formulas should use ginseng, not codonopsis (Dang Shen).</p>' : '') +
       '<div class="banner banner-info">' + IC.info + '<span>Dose: follow the product label and confirm with your vet.</span></div>';
     return disc(vet ? '#B42318' : SC.sky, esc(nice), esc(f.classical), '', body, vet ? '<span class="badge badge-vet" style="margin-left:auto">Vet</span>' : '');
   }

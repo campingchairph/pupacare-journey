@@ -1,6 +1,6 @@
 /* Generated from rules.json. Keep in sync: edit rules.json, then regenerate this file. */
 window.PUPA_RULES = {
-  "version": "0.1.0",
+  "version": "0.2.0",
   "source": "Dr. Steve Marsden webinars Part 1 (l-wDg2rI6fc) + Part 2 (PxsTj3w0qsY). Weights are v0 heuristics, NOT from the source — tune with real cases.",
   "species": ["dog"],
   "market": "PH",
@@ -22,7 +22,9 @@ window.PUPA_RULES = {
       "base": "fresh meat-based food, raw or cooked",
       "plant_fraction": { "min": 0.167, "max": 0.333, "examples": ["sweet potato (kamote)", "squash (kalabasa)", "carrot", "pechay", "malunggay", "berries"], "never": ["onion"], "minimal": ["garlic"] },
       "probiotic_species_required_any": ["Lactobacillus", "Bifidobacterium", "Bacteroides"],
+      "probiotic_note": "Bacteroides is rarely sold as a pet probiotic and could not be verified from the source (possible transcript error); in practice look for Lactobacillus or Bifidobacterium.",
       "probiotic_wrong_niche": ["Enterococcus faecium"],
+      "probiotic_wrong_niche_note": "Dr. Marsden's view, not mainstream guidance; E. faecium is a common, generally safe pet probiotic.",
       "skip_adding_plants_if_plant_fraction_gte": 0.167
     }
   },
@@ -59,7 +61,7 @@ window.PUPA_RULES = {
         { "id": "flares_on_dose_reduction", "w": 2 },
         { "id": "cruciate_or_hip_history", "w": 1 },
         { "id": "high_eosinophils", "w": 2, "bloodwork": true },
-        { "id": "hypercalcemia_idiopathic", "w": 1, "bloodwork": true },
+        { "id": "hypercalcemia_idiopathic", "w": 1, "bloodwork": true, "vet_warning": "Unexplained high calcium is very rare in dogs; the most common cause is lymphoma. Needs a full vet workup first." },
         { "id": "kcs_dry_eye", "w": 1 }
       ]
     },
@@ -76,7 +78,7 @@ window.PUPA_RULES = {
         { "id": "tongue_lavender", "w": 1, "vet_or_photo": true },
         { "id": "weak_pulse", "w": 1, "vet_only": true }
       ],
-      "cautions": [{ "id": "gassy", "msg": "Gassy dogs may get loose stools on Four Materials — start low, tell your vet." }]
+      "cautions": [{ "id": "gassy", "msg": "Gassy dogs may get loose stools on Four Substances (Si Wu Tang) — start low, tell your vet." }]
     },
     "severe": {
       "label": "Severe / autoimmune (needs 'ice pack')",
@@ -84,8 +86,8 @@ window.PUPA_RULES = {
         { "id": "lesions_red_raw_ulcerated", "w": 3 },
         { "id": "autoimmune_diagnosis", "w": 4 },
         { "id": "hot_torso_cold_extremities", "w": 3, "note": "owner sweats where dog touches them" },
-        { "id": "calcinosis_cutis", "w": 2 },
-        { "id": "itchier_on_cesarex", "w": 3 },
+        { "id": "calcinosis_cutis", "w": 2, "vet_warning": "In dogs often linked to Cushing's disease or long-term steroid use. Ask your vet." },
+        { "id": "itchier_on_cessorex", "w": 3 },
         { "id": "miserable_unhappy", "w": 1 }
       ]
     },
@@ -118,15 +120,15 @@ window.PUPA_RULES = {
 
   "gates": [
     { "id": "G0", "rule": "any red_flag", "action": "STOP_PLAN_GO_TO_VET_NOW" },
-    { "id": "G1a", "rule": "diet in processed AND owner_refuses_diet_change", "plan": ["four_marbles", "cesarex"], "note": "Slower. Re-offer diet change at every check-in." },
-    { "id": "G1b", "rule": "diet in processed", "plan": ["diet_foundation", "four_marbles_or_long_dan"], "long_dan_if": "temperament_irritable_or_aggressive", "then": "finish_on_four_marbles", "recheck_weeks": [2, 4, 6] },
-    { "id": "G2a", "rule": "on real food >= 4 weeks AND radically_better", "plan": ["four_marbles_maintain", "taper"] },
+    { "id": "G1a", "rule": "diet in processed AND owner_refuses_diet_change", "plan": ["four_marvels", "cessorex"], "note": "Slower. Re-offer diet change at every check-in." },
+    { "id": "G1b", "rule": "diet in processed", "plan": ["diet_foundation", "four_marvels_or_long_dan"], "long_dan_if": "temperament_irritable_or_aggressive", "then": "finish_on_four_marvels", "recheck_weeks": [2, 4, 6] },
+    { "id": "G2a", "rule": "on real food >= 4 weeks AND radically_better", "plan": ["four_marvels_maintain", "taper"] },
     { "id": "G2b", "rule": "on raw AND plant_fraction < 0.1", "plan": ["add_plants", "add_probiotics"], "recheck_weeks": [2, 4] },
     { "id": "G2c", "rule": "on real food AND not resolved", "plan_by_pattern": {
-        "severe": ["immunobomb", "then_add_cesarex"],
+        "severe": ["immunobalm", "then_add_cessorex"],
         "blood_def_only": ["four_materials"],
-        "adaptive": ["cesarex"],
-        "low_grade": ["galvanex", "cesarex"]
+        "adaptive": ["cessorex"],
+        "low_grade": ["galvanex", "cessorex"]
       },
       "priority": ["severe", "adaptive", "low_grade", "blood_def_only"]
     }
@@ -135,8 +137,8 @@ window.PUPA_RULES = {
   "response_loop": {
     "check_every_days": 14,
     "rules": [
-      { "if": "itchier_on_cesarex AND diet_real", "then": ["add_immunobomb", "reduce_cesarex"] },
-      { "if": "itchier_on_cesarex AND diet_processed", "then": ["add_four_marbles", "reduce_cesarex"] },
+      { "if": "itchier_on_cessorex AND diet_real", "then": ["add_immunobalm", "reduce_cessorex"] },
+      { "if": "itchier_on_cessorex AND diet_processed", "then": ["add_four_marvels", "reduce_cessorex"] },
       { "if": "partial_response AND tolerating", "then": ["ask_vet_increase_dose"] },
       { "if": "improving AND NOT severe", "then": ["add_galvanex"] },
       { "if": "weeks_on_plan >= 12 AND diligent AND no_progress", "then": ["refer_allergy_or_microbiome_testing", "refer_dermatologist"] }
@@ -162,13 +164,17 @@ window.PUPA_RULES = {
   },
 
   "formulas": {
-    "four_marbles":  { "classical": "Si Miao San", "brands": ["Kan Essentials: Four Marbles", "Natural Path: Si Miao San"], "for": "innate" },
-    "long_dan":      { "classical": "Long Dan Xie Gan Tang", "for": "innate, irritable dogs", "caution": "Strong. Vet only. Not digestion-supportive." },
-    "four_materials":{ "classical": "Si Wu Tang", "brands": ["Dry Derma Relief (equivalent)"], "for": "blood_def" },
-    "minor_bupleurum":{ "classical": "Xiao Chai Hu Tang", "brands": ["Kan: Harmonize the Chi"], "rule": "Must contain ginseng (Ren Shen), not codonopsis", "note": "Alone not enough for dogs — pair with Four Materials" },
-    "cesarex":       { "classical": "appears to be Minor Bupleurum + Four Materials", "brands": ["Gold Standard Herbs: Cesarex"], "for": "adaptive" },
-    "immunobomb":    { "classical": "≈ Cool the Blood", "brands": ["Gold Standard Herbs: ImmunoBomb", "Kan: Cool the Blood"], "for": "severe/autoimmune" },
-    "galvanex":      { "classical": "Bu Zhong Yi Qi Tang", "brands": ["Gold Standard Herbs: Galvanex", "Kan: Lift the Chi"], "for": "low_grade", "caution": "Not for severely inflamed dogs." }
+    "four_marvels":   { "name": "Four Marvels", "classical": "Si Miao San (Four Marvels Powder)", "brands": ["Kan Essentials: Four Marvels", "Natural Path Herb Co.: Si Miao San (older brand, may no longer be sold)"], "for": "innate" },
+    "long_dan":       { "name": "Long Dan", "classical": "Long Dan Xie Gan Tang (Gentiana Drain the Liver Decoction)", "for": "innate, irritable dogs", "caution": "Strong. Vet only. Not digestion-supportive. Some older versions used Guan Mu Tong (Aristolochia), which can damage the kidneys: only use a veterinary brand, through your vet." },
+    "four_materials": { "name": "Four Substances", "classical": "Si Wu Tang (Four Substances Decoction)", "brands": ["Kan Essentials: Dry Derma Relief (related: Si Wu Xiao Feng Yin, Si Wu Tang plus anti-itch herbs)"], "for": "blood_def" },
+    "minor_bupleurum":{ "name": "Minor Bupleurum", "classical": "Xiao Chai Hu Tang (Minor Bupleurum Decoction)", "brands": ["Kan Essentials: Harmonize the Qi"], "rule": "Must contain ginseng (Ren Shen), not codonopsis (Dang Shen)", "note": "Alone not enough for dogs — pair with Four Substances" },
+    "cessorex":       { "name": "Cessorex", "classical": "Xiao Chai Hu Tang + Si Wu Tang (Minor Bupleurum + Four Substances), per the label's ingredients", "brands": ["Gold Standard Herbs: Cessorex"], "for": "adaptive" },
+    "immunobalm":     { "name": "ImmunoBalm", "classical": "Based on Qing Ying Tang (\"Cool the Blood\")", "brands": ["Gold Standard Herbs: ImmunoBalm", "Kan Essentials: Cool the Blood"], "for": "severe/autoimmune" },
+    "galvanex":       { "name": "Galvanex", "classical": "Bu Zhong Yi Qi Tang (Tonify the Middle and Augment the Qi Decoction)", "brands": ["Gold Standard Herbs: Galvanex", "Kan Essentials: Lift the Qi"], "for": "low_grade", "caution": "Not for severely inflamed dogs." }
+  },
+  "verified": {
+    "date": "2026-11-13",
+    "note": "Product names checked against retailer and maker listings: the transcript's 'Cesarex', 'ImmunoBomb', 'Four Marbles' and 'Lift/Harmonize the Chi' were corrected to Cessorex, ImmunoBalm, Four Marvels and Lift/Harmonize the Qi."
   },
   "product_fields_todo": ["ph_source", "affiliate_url", "label_dose_url", "price_php"],
   "dosing_policy": "Never compute doses. Link to product label + 'confirm with your vet'."

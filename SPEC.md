@@ -54,7 +54,7 @@ products(id, formula_key, brand, ph_source, affiliate_url, label_dose_url, price
 
 ## Developer notes
 - `rules.json` is versioned; store `rules_version` on every assessment so old results stay explainable.
-- Keep **all** pattern scores; patterns overlap (e.g. adaptive + blood_def → Cesarex covers both).
+- Keep **all** pattern scores; patterns overlap (e.g. adaptive + blood_def → Cessorex covers both).
 - Seasonality: ask about **cycles** (hot/humid onset, ~6-month cycle), not US months.
 - Taper UI per drug: Apoquel/Atopica = dose steps; Prednisone = vet schedule only; Cytopoint = longer interval, vet decides.
 - Owner-checkable signs get photo guides; `vet_only` signs are optional and editable by a vet.
@@ -65,7 +65,7 @@ products(id, formula_key, brand, ph_source, affiliate_url, label_dose_url, price
 - Red flags block plan generation.
 - No dose numbers, ever.
 - "Never stop prednisone suddenly" shown on any taper screen.
-- Long Dan Xie Gan Tang, ImmunoBomb: "vet supervision" badge.
+- Long Dan Xie Gan Tang, ImmunoBalm: "vet supervision" badge.
 - Raw-food handling guide if raw is chosen.
 - Disclaimer: one integrative vet's approach; not mainstream veterinary consensus.
 

@@ -1,5 +1,5 @@
 /* Network-first service worker: always tries the latest files, falls back to cache when offline. */
-const CACHE = 'pupacare-v2';
+const CACHE = 'pupacare-v3';
 const FILES = ['./', 'index.html', 'pupacare.css', 'pupacare-app.js', 'rules.js', 'manifest.json', 'icon.svg', 'icon-paw.svg'];
 
 self.addEventListener('install', (e) => {
